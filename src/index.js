@@ -1,16 +1,17 @@
+/* eslint-disable no-await-in-loop */
 import { requestPendingItems } from './requestPendingItems/requestPendingItems';
+import { sendSqs } from './sendSqs/sendSqs';
 
 const processPendingItems = async () => {
   let isDone = false;
   let lastEvaluatedStartKey;
   console.log('Initialize Loop');
   do {
-    // eslint-disable-next-line no-await-in-loop
     const items = await requestPendingItems(lastEvaluatedStartKey);
+    await sendSqs(items.data);
     lastEvaluatedStartKey = items.lastEvaluatedStartKey;
     isDone = !(items.lastEvaluatedStartKey);
     console.log(`LastEvaluatedStartKey: ${lastEvaluatedStartKey}`);
-    console.log(`Items: ${JSON.stringify(items.data)}`);
   } while (!isDone);
   console.log('End Loop');
 };
